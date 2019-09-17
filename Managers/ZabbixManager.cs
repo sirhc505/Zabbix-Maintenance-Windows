@@ -42,22 +42,35 @@ namespace ZabbixMW.Managers
 
         }
 
-
-
         public void SetConfig()
         {
             ADManager aDManager = new ADManager();
             List<string> serverList = new List<string>();
             List<MaintWinGroup> maintWinGroups = ConfigurationManager.maintWinGroups;
+            int currentMaintID = ConfigurationManager.ZabbixSettings.ZabbixDefaultID;
+            int defaultMaintID = ConfigurationManager.ZabbixSettings.ZabbixDefaultID;
+
 
             foreach (MaintWinGroup newMaintWinGroup in maintWinGroups)
             {
                 serverList = aDManager.GetGroupMembership(newMaintWinGroup.GroupName);
-                string tmp = "";
+                currentMaintID = newMaintWinGroup.TemplateId;
+                foreach (string server in serverList)
+                {
+
+                }
             }
 
 
         }
+
+        public int GetHostCurrentMaintenanceID (string serverName)
+        {
+
+
+            return 0;
+        }
+
 
     }
 }

@@ -28,7 +28,6 @@ namespace ZabbixMW.Managers
             _configuration = config.Build();
 
             IConfigurationSection _adconfig = _configuration.GetSection("ADSettings");
-
             AdSettings.AdServer = _adconfig.GetValue<string>("ADServer");
             AdSettings.AdUser = _adconfig.GetValue<string>("ADUser");
             AdSettings.AdPassword = _adconfig.GetValue<string>("ADPassword");
@@ -38,6 +37,7 @@ namespace ZabbixMW.Managers
             ZabbixSettings.ZabbixServerName = _zabbixconfig.GetValue<string>("Zabbix_ServerName");
             ZabbixSettings.ZabbixUserName = _zabbixconfig.GetValue<string>("Zabbix_UserName");
             ZabbixSettings.ZabbixPassword = _zabbixconfig.GetValue<string>("Zabbix_Password");
+            ZabbixSettings.ZabbixDefaultID = _zabbixconfig.GetValue<int>("Zabbix_DefaultID");
 
             IConfigurationSection confMaintWinGroups = _configuration.GetSection("MaintWinGroups");
             foreach (IConfigurationSection configurationSection in confMaintWinGroups.GetChildren())

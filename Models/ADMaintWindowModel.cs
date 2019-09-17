@@ -63,6 +63,10 @@ namespace ZabbixMW.Models
 
         [JsonProperty("Zabbix_ServerName")]
         public string ZabbixServerName { get; set; }
+
+        [JsonProperty("Zabbix_DefaultID")]
+        public int ZabbixDefaultID { get; set; }
+        
     }
 
 }
