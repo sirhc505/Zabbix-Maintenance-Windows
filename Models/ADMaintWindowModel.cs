@@ -24,6 +24,9 @@ namespace ZabbixMW.Models
 
         [JsonProperty("Zabbix_ServerName")]
         public string ZabbixServerName { get; set; }
+
+        [JsonProperty("ADSettings")]
+        public AdSettings AdSettings { get; set; }
     }
 
     public partial class MaintWinGroup
@@ -32,7 +35,35 @@ namespace ZabbixMW.Models
         public string GroupName { get; set; }
 
         [JsonProperty("TemplateID")]
-        public long TemplateId { get; set; }
+        public int TemplateId { get; set; }
     }
+
+    public partial class AdSettings
+    {
+        [JsonProperty("ADOU")]
+        public string Adou { get; set; }
+
+        [JsonProperty("ADServer")]
+        public string AdServer { get; set; }
+
+        [JsonProperty("ADUser")]
+        public string AdUser { get; set; }
+
+        [JsonProperty("ADPassword")]
+        public string AdPassword { get; set; }
+    }
+
+    public partial class ZabbixSettings
+    {
+        [JsonProperty("Zabbix_UserName")]
+        public string ZabbixUserName { get; set; }
+
+        [JsonProperty("Zabbix_Password")]
+        public string ZabbixPassword { get; set; }
+
+        [JsonProperty("Zabbix_ServerName")]
+        public string ZabbixServerName { get; set; }
+    }
+
 }
 
