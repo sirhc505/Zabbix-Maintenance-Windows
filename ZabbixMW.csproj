@@ -22,6 +22,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
     <PackageReference Include="System.DirectoryServices" Version="4.5.0" />
     <PackageReference Include="System.DirectoryServices.Protocols" Version="4.5.0" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <PackageReference Include="System.Security.Cryptography.OpenSsl" Version="4.5.1" />
 	<Content Update="appsettings.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>

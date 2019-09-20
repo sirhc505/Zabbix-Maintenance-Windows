@@ -7,7 +7,7 @@ namespace ZabbixMW.Models
         [JsonProperty("jsonrpc")]
         public string Jsonrpc { get; set; }
 
-        [JsonProperty("auth")]
+        [JsonProperty("result")]
         public string Result { get; set; }
 
         [JsonProperty("id")]

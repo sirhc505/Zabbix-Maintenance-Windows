@@ -66,7 +66,10 @@ namespace ZabbixMW.Models
 
         [JsonProperty("Zabbix_DefaultID")]
         public int ZabbixDefaultID { get; set; }
-        
+
+        [JsonProperty("Zabbix_JSON_RPC")]
+        public string ZabbixJsonRpc { get; set; }
+
     }
 
 }

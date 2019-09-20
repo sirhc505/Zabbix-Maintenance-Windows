@@ -38,6 +38,7 @@ namespace ZabbixMW.Managers
             ZabbixSettings.ZabbixUserName = _zabbixconfig.GetValue<string>("Zabbix_UserName");
             ZabbixSettings.ZabbixPassword = _zabbixconfig.GetValue<string>("Zabbix_Password");
             ZabbixSettings.ZabbixDefaultID = _zabbixconfig.GetValue<int>("Zabbix_DefaultID");
+            ZabbixSettings.ZabbixJsonRpc = _zabbixconfig.GetValue<string>("Zabbix_JSON_RPC");
 
             IConfigurationSection confMaintWinGroups = _configuration.GetSection("MaintWinGroups");
             foreach (IConfigurationSection configurationSection in confMaintWinGroups.GetChildren())

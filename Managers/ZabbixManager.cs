@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net;
-using System.Configuration;
 using System.Text;
 using Newtonsoft.Json;
 using System.Net.Http;
@@ -27,6 +25,7 @@ namespace ZabbixMW.Managers
         private static string ZabbixServer;
         private static string ZabbixUser;
         private static string ZabbixPassword;
+        private static string ZabbixRPCVersion;
 
         public static async Task<ZabbixRpcAuthModel> GetSessionID(ZabbixRpcAuthModel zabbixRpcAuthModel)
         {
@@ -34,15 +33,14 @@ namespace ZabbixMW.Managers
             try
             {
                 string postContent = JsonConvert.SerializeObject(zabbixRpcAuthModel, Formatting.Indented);
-                Console.WriteLine(postContent);
-                StringContent httpContent = new StringContent(postContent, Encoding.UTF8, "application/json-rpc");
-                using (HttpResponseMessage response = await ZabbixClient.PostAsync(url, httpContent).ConfigureAwait(false))
-                // using (HttpResponseMessage response = await ZabbixClient.PostAsJsonAsync<ZabbixRpcAuthModel>(url, zabbixRpcAuthModel).ConfigureAwait(false))
+                StringContent httpContent = new StringContent(postContent, Encoding.UTF8, "application/json");
+                using (HttpResponseMessage response = await ZabbixClient.PostAsJsonAsync<ZabbixRpcAuthModel>(url,zabbixRpcAuthModel).ConfigureAwait(false))
                 {
                     if (response.IsSuccessStatusCode)
                     {
-                        ZabbixRpcAuthResponceModel zabbixRpcAuthResponse = await response.Content.ReadAsAsync<ZabbixRpcAuthResponceModel>().ConfigureAwait(false);
-                        ZabbixAuthResult = zabbixRpcAuthResponse.Result;
+                        // string authResponse = await response.Content.ReadAsStringAsync().ConfigureAwait(false);   // .ReadAsync<ZabbixRpcAuthModel>().ConfigureAwait(false);
+                        ZabbixRpcAuthResponceModel zabbixRpcAuthResponceModel = await response.Content.ReadAsAsync<ZabbixRpcAuthResponceModel>().ConfigureAwait(false);// JsonConvert.DeserializeObject<ZabbixRpcAuthResponceModel>(authResponse);
+                        ZabbixAuthResult = zabbixRpcAuthResponceModel.Result;
                         return zabbixRpcAuthModel;
                     }
                     else
@@ -64,8 +62,8 @@ namespace ZabbixMW.Managers
             ZabbixServer = (ConfigurationManager.ZabbixSettings.ZabbixServerName != null) ? ZabbixServer = ConfigurationManager.ZabbixSettings.ZabbixServerName : throw new InvalidProgramException("Missing Zabbix server name. Is the configuration loaded?");
             ZabbixUser = (ConfigurationManager.ZabbixSettings.ZabbixUserName != null) ? ZabbixUser = ConfigurationManager.ZabbixSettings.ZabbixUserName : throw new InvalidProgramException("Missing Zabbix user name name. Is the configuration loaded?");
             ZabbixPassword = (ConfigurationManager.ZabbixSettings.ZabbixPassword != null) ? ZabbixPassword = ConfigurationManager.ZabbixSettings.ZabbixPassword : throw new InvalidProgramException("Missing Zabbix service account password. Is the configuration loaded?");
+            ZabbixRPCVersion = (ConfigurationManager.ZabbixSettings.ZabbixJsonRpc != null) ? ZabbixRPCVersion = ConfigurationManager.ZabbixSettings.ZabbixJsonRpc : throw new InvalidProgramException("Missing Zabbix RPC version number. Is the configuration loaded?");
 
-                
             ZabbixRpcAuthParams zabbixRpcAuthParams = new ZabbixRpcAuthParams
             {
                 User = ZabbixUser,
@@ -73,7 +71,7 @@ namespace ZabbixMW.Managers
             };
             ZabbixRpcAuthModel zabbixRpcAuthModel = new ZabbixRpcAuthModel
             {
-                Jsonrpc = "2.0",
+                Jsonrpc = ZabbixRPCVersion,
                 Method = "user.login",
                 Params = zabbixRpcAuthParams,
                 Id = 1,
@@ -82,11 +80,16 @@ namespace ZabbixMW.Managers
             try
             {
                 ZabbixClient = new HttpClient();
+
+                string authCreds = string.Format("{0}:{1}", ZabbixUser, ZabbixPassword);
+                var byteArray = Encoding.ASCII.GetBytes(authCreds);
+
                 ServicePointManager.ServerCertificateValidationCallback += (o, c, ch, er) => true;
                 ZabbixClient.DefaultRequestHeaders.Accept.Clear();
                 string baseAddress = string.Format("https://{0}/", ZabbixServer);
                 ZabbixClient.BaseAddress = new Uri(baseAddress);
-                ZabbixClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json-rpc"));
+                ZabbixClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
+                ZabbixClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 var setSession = GetSessionID(zabbixRpcAuthModel);
                 setSession.Wait();
             }
@@ -97,7 +100,7 @@ namespace ZabbixMW.Managers
 
         }
 
-        public async void SetConfig()
+        public void SetConfig()
         {
             ADManager aDManager = new ADManager();
             List<string> serverList = new List<string>();
