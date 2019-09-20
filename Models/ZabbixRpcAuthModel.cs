@@ -1,7 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ZabbixMW.Models
 {
@@ -14,16 +11,19 @@ namespace ZabbixMW.Models
         public string Method { get; set; }
 
         [JsonProperty("params")]
-        public Params Params { get; set; }
+        public ZabbixRpcAuthParams Params { get; set; }
 
         [JsonProperty("id")]
-        public long Id { get; set; }
+        public int Id { get; set; }
 
         [JsonProperty("auth")]
-        public object Auth { get; set; }
+        public string Auth { get; set; }
+
+        [JsonProperty("result")]
+        public string Result { get; set; }
     }
 
-    public partial class Params
+    public partial class ZabbixRpcAuthParams
     {
         [JsonProperty("user")]
         public string User { get; set; }
