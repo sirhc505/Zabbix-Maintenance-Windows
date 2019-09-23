@@ -13,7 +13,8 @@ namespace ZabbixMW
             configMgr.LoadConfiguration();
 
             ZabbixManager zabbixManager = new ZabbixManager();
-            zabbixManager.SetConfig();
+            zabbixManager.ValidateConfig();
+            
             // aDManager.GetServers();
 
         }

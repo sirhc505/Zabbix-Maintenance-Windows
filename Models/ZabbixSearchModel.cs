@@ -23,7 +23,7 @@ namespace ZabbixMW.Models
 
     public partial class ZabbixSearcParams
     {
-        [JsonProperty("filter")]
+        [JsonProperty("search")]
         public ZabbixSearcFilter Filter { get; set; }
     }
 
@@ -32,6 +32,4 @@ namespace ZabbixMW.Models
         [JsonProperty("host")]
         public List<string> Host { get; set; }
     }
-}
-
 }

@@ -57,8 +57,9 @@ namespace ZabbixMW.Models
         [JsonProperty("ipmi_username")]
         public string IpmiUsername { get; set; }
 
-        [JsonProperty("ipmi_password")]
-        public string IpmiPassword { get; set; }
+        // Not sure I want this. 
+        // [JsonProperty("ipmi_password")]
+        // public string IpmiPassword { get; set; }
 
         [JsonProperty("ipmi_disable_until")]
         public int IpmiDisableUntil { get; set; }
