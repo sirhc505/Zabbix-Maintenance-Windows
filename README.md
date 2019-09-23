@@ -1,20 +1,30 @@
-﻿# 1. Zabbix AD Maintenance Window Manager
+﻿# Zabbix AD Maintenance Window Manager
 
-- [Zabbix AD Maintenance Window Manager](#1-zabbix-ad-maintenance-window-manager)
-  - [1.1. Control Logic](#11-control-logic)
+<!-- TOC -->
+
+- [Zabbix AD Maintenance Window Manager](#zabbix-ad-maintenance-window-manager)
+  - [Control Logic](#control-logic)
   - [System Requirements](#system-requirements)
     - [Running](#running)
     - [Building](#building)
-  - [1.2. Configuration File](#12-configuration-file)
-    - [1.2.1. ADSettings](#121-adsettings)
-    - [1.2.2. MaintWinGroups](#122-maintwingroups)
-    - [1.2.3. ZabbixSettings](#123-zabbixsettings)
-  - [1.3. Complete Sample JSON File](#13-complete-sample-json-file)
-  - [1.4. Created By](#14-created-by)
+  - [Configuration File](#configuration-file)
+    - [ADSettings](#adsettings)
+    - [MaintWinGroups](#maintwingroups)
+    - [ZabbixSettings](#zabbixsettings)
+  - [Complete Sample JSON File](#complete-sample-json-file)
+  - [Created By](#created-by)
 
-This application reads the Active Directory groups for managing SCCM Maintenance Windows and makes sure that they line up in Zabbix. This will minimize on Alerts.
+<!-- /TOC -->
 
-## 1.1. Control Logic
+This application reads the Active Directory groups for managing SCCM Maintenance Windows and makes sure that they line up in Zabbix. This help will minimize on Alerts.
+
+There is an assumption being made here that you:
+
+1. Are familiar with managing computer objects inside of groups in Active Directory
+2. You have working Maintenance Windows inside of Zabbix that will match the Groups in Active Directory
+3. You can modify / create a JSON text file.
+
+## Control Logic
 
 This application assume that there is a default maintenance window that corresponds with ITS' current maintenance window policy. If a server is added to one of the groups in [MaintWinGroups](#122-maintwingroups) then after this script runs, it will be part of that group. If the server is removed from a group, it will then be removed from the Zabbix maintenance window as well.
 
@@ -26,13 +36,13 @@ Zabbix re-writes the entire group membership when you call [maintenance.update](
 
 - Windows Server 2106 or Windows 10 or Later
 - x64 based operating system
-- Microsoft .NEt 4.7.2 framework or later.
+- Microsoft .Net 4.7.2 framework or later.
 
 ### Building
 
 - Windows 10 x64 or Later
 - Visual Studio 2019
-- Microsoft .NEt 4.7.2 framework
+- Microsoft .Net 4.7.2 framework
 - The following NuGet Packages
   - Newtonsoft.Json
   - System.DirectoryServices (+ .Protocols)
@@ -41,11 +51,11 @@ Zabbix re-writes the entire group membership when you call [maintenance.update](
   - Microsoft.Extensions.Configuration (+ .Binder, .FileExtensions, .Json)
   - Microsoft.AspNet.WebApi.Client
 
-## 1.2. Configuration File
+## Configuration File
 
 The configuration file ***appsettings.json*** is broken into three categories:
 
-### 1.2.1. ADSettings
+### ADSettings
 
 AD Settings contains the values to find the groups in AD.
 
@@ -63,12 +73,14 @@ AD Settings contains the values to find the groups in AD.
   },
 ```
 
-### 1.2.2. MaintWinGroups
+### MaintWinGroups
 
 The section ***MaintWinGroups***  is an array that contains the CNs (Common Names) of all of the groups in ***ADOU*** that we will be reading the server membership from.
 
 - **GroupName**: is the CN value of the Group. This is usually the name that is displayed in *Active Directory Users and Computers*. However to be sure you can right click on the group and select properties. The value in ***Group Name (pre-Windows 2000:)*** is the value you want to type into the config file.
 - **TemplateID**: This is the ID of the matching maintenance window in Zabbix. To get this id, you need only open the Maintenance Window in Zabbix and look at the URL. You will see mainteanceid=##. The ## references the maintenance window ID.
+
+**IMPORTANT**: You must have a unique value set in each TemplateID. If you do not you will have odd results.
 
 ```json
 "MaintWinGroups": [
@@ -123,7 +135,7 @@ The section ***MaintWinGroups***  is an array that contains the CNs (Common Name
   ]
 ```
 
-### 1.2.3. ZabbixSettings
+### ZabbixSettings
 
 - **Zabbix_UserName**: This is the user account that has read/write access to all of the maintenance groups and the host group that the servers are a part of. If the account does not have access to the group that the monitored computer is a port of, the change will fail with a permission denied.
 - **Zabbix_Password**: This is the password for the service account **Zabbix_UserName**.
@@ -141,7 +153,7 @@ The section ***MaintWinGroups***  is an array that contains the CNs (Common Name
   }
 ```
 
-## 1.3. Complete Sample JSON File
+## Complete Sample JSON File
 
 Note: The file name must be: ***appsettings.json***.
 
@@ -213,6 +225,6 @@ Note: The file name must be: ***appsettings.json***.
 }
 ```
 
-## 1.4. Created By
+## Created By
 
 Christopher Tarricone chris@uconn.edu (c) 2019
