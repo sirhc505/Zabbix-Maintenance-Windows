@@ -54,7 +54,7 @@ namespace ZabbixMW.Managers
             }
         }
 
-        public async Task<ZabbixSearchResults> GetHostCurrentMaintenanceID(string serverName)
+        public async Task<ZabbixSearchResults> GetHostInfo(string serverName)
         {
             List<string> hostList = new List<string>();
             hostList.Add(serverName.ToLower());
@@ -113,14 +113,12 @@ namespace ZabbixMW.Managers
             }
         }
 
-        public async Task<bool> UpdateMaintenanceSchedule(int hostId, int correctMaintId)
+        public async Task<bool> UpdateMaintenanceSchedule(List<string> hostIds, int correctMaintId)
         {
-            List<string> updatingID = new List<string>();
-            updatingID.Add(hostId.ToString());
             ZabbixSetHostMaintParams zabbixSetHostMaintParams = new ZabbixSetHostMaintParams
             {
                 Maintenanceid = correctMaintId.ToString(),
-                Hostids = updatingID
+                Hostids = hostIds
             };
             ZabbixSetHostMaintModel zabbixSetHostMaintModel = new ZabbixSetHostMaintModel
             {
@@ -197,52 +195,38 @@ namespace ZabbixMW.Managers
             List<string> serverList = new List<string>();
             List<MaintWinGroup> maintWinGroups = ConfigurationManager.maintWinGroups;
             int currentMaintID = ConfigurationManager.ZabbixSettings.ZabbixDefaultID;
-            int defaultMaintID = ConfigurationManager.ZabbixSettings.ZabbixDefaultID;
 
             foreach (MaintWinGroup newMaintWinGroup in maintWinGroups)
             {
                 serverList = aDManager.GetGroupMembership(newMaintWinGroup.GroupName);
                 currentMaintID = newMaintWinGroup.TemplateId;
+                List<string> serversInMaintGrp = new List<string>();
                 foreach (string currentServer in serverList)
                 {
                     string server = currentServer;
-                    if (server == "ARMDCG2.grove.ad.uconn.edu")
+                    var zabbixTaskResult = GetHostInfo(server);
+                    zabbixTaskResult.Wait();
+                    if (zabbixTaskResult.Result != null)
                     {
-                        var zabbixTaskResult = GetHostCurrentMaintenanceID(server);
-                        zabbixTaskResult.Wait();
+                        ZabbixSearchResults zabbixSearchResult = zabbixTaskResult.Result;
 
-                        if (zabbixTaskResult.Result != null)
-                        {
-                            ZabbixSearchResults zabbixSearchResult = zabbixTaskResult.Result;
-
-                            long serverMainID = zabbixSearchResult.Maintenanceid;
-
-                            if (serverMainID != currentMaintID)
-                            {
-                                Console.WriteLine(server + " has the wrong maintenance schedule. Updating....");
-                                Task<bool> wasUpdateSuccess = UpdateMaintenanceSchedule(zabbixSearchResult.Hostid, currentMaintID);
-                                if (wasUpdateSuccess.Result == true)
-                                {
-                                    Console.WriteLine("Done!");
-                                }
-                                else
-                                {
-                                    Console.WriteLine("Could not update Maintenance Window for server [" + zabbixSearchResult.Name + "]!");
-                                }
-                            }
-                            else if (serverMainID == currentMaintID)
-                            {
-                                // Good, things are correct
-                            }
-                            else
-                            {
-                                Console.WriteLine("Soemthing weird happened with server: [" + server + "]. Check AD and Zabbix.");
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine(server + " was not found in Zabbix. Make sure the names match and the host exists in Zabbix.");
-                        }
+                        serversInMaintGrp.Add(zabbixSearchResult.Hostid.ToString());
+                    }
+                    else
+                    {
+                        Console.WriteLine(server + " was not found in Zabbix. Make sure the names match and the host exists in Zabbix.");
+                    }
+                }
+                if (serversInMaintGrp.Count > 0)
+                {
+                    Task<bool> wasUpdateSuccess = UpdateMaintenanceSchedule(serversInMaintGrp, currentMaintID);
+                    if (wasUpdateSuccess.Result == true)
+                    {
+                        Console.WriteLine("Done!");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Could not update Maintenance Window!");
                     }
                 }
             }

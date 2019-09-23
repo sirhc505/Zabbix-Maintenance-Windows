@@ -1,23 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net;
+using System.Linq;
 using System.Text;
-using Newtonsoft.Json;
 using System.Threading.Tasks;
-using System.Text.RegularExpressions;
-using ZabbixMW.Managers;
-using ZabbixMW.Models;
-using ZabbixMW.Common;
 
 namespace ZabbixMW.Common
 {
-
-    class ZabbixMaintenanceMonitor
+    // Placeholder for any common functions. 
+    class Class1
     {
-
-        public void test()
-        {
-        }
-
     }
 }
