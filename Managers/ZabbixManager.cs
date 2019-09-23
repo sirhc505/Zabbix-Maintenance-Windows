@@ -129,7 +129,6 @@ namespace ZabbixMW.Managers
                 Id = 1
             };
             string postContent = JsonConvert.SerializeObject(zabbixSetHostMaintModel, Formatting.Indented);
-            Console.WriteLine(postContent);
             using (HttpResponseMessage response = await ZabbixClient.PostAsJsonAsync<ZabbixSetHostMaintModel>(ZabbixAPIUrl, zabbixSetHostMaintModel).ConfigureAwait(false))
             {
                 if (response.IsSuccessStatusCode)
@@ -209,7 +208,7 @@ namespace ZabbixMW.Managers
                     if (zabbixTaskResult.Result != null)
                     {
                         ZabbixSearchResults zabbixSearchResult = zabbixTaskResult.Result;
-
+                        Console.WriteLine(string.Format("Verifying Server: [{0}] is in maintenance window ID: [{1}]!", zabbixSearchResult.Name, currentMaintID));
                         serversInMaintGrp.Add(zabbixSearchResult.Hostid.ToString());
                     }
                     else
@@ -222,7 +221,7 @@ namespace ZabbixMW.Managers
                     Task<bool> wasUpdateSuccess = UpdateMaintenanceSchedule(serversInMaintGrp, currentMaintID);
                     if (wasUpdateSuccess.Result == true)
                     {
-                        Console.WriteLine("Done!");
+                        Console.WriteLine(string.Format("Maintenance Window [{0}] Updated!", currentMaintID));
                     }
                     else
                     {
