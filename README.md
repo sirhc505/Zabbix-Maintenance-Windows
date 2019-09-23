@@ -1,8 +1,8 @@
-﻿# 1. Zabbix AD Maintenance Window Manager
+﻿# Zabbix AD Maintenance Window Manager
 
 <!-- TOC -->
 
-- [1. Zabbix AD Maintenance Window Manager](#1-zabbix-ad-maintenance-window-manager)
+- [Zabbix AD Maintenance Window Manager](#zabbix-ad-maintenance-window-manager)
   - [1.1. Control Logic](#11-control-logic)
   - [System Requirements](#system-requirements)
     - [Running](#running)
