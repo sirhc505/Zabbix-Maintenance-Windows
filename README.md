@@ -1,6 +1,6 @@
-﻿# Zabbix AD Maintenance Window Manager
+﻿# 1. Zabbix AD Maintenance Window Manager
 
-- [Zabbix AD Maintenance Window Manager](#zabbix-ad-maintenance-window-manager)
+- [Zabbix AD Maintenance Window Manager](#1-zabbix-ad-maintenance-window-manager)
   - [1.1. Control Logic](#11-control-logic)
   - [System Requirements](#system-requirements)
     - [Running](#running)
@@ -142,6 +142,8 @@ The section ***MaintWinGroups***  is an array that contains the CNs (Common Name
 ```
 
 ## 1.3. Complete Sample JSON File
+
+Note: The file name must be: ***appsettings.json***.
 
 ```json
 {
