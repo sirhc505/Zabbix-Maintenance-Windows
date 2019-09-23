@@ -26,7 +26,7 @@ namespace ZabbixMW.Models
     public partial class ZabbixSetHostMaintParams
     {
         [JsonProperty("maintenanceid")]
-        public long Maintenanceid { get; set; }
+        public string Maintenanceid { get; set; }
 
         [JsonProperty("hostids")]
         public List<string> Hostids { get; set; }

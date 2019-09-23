@@ -24,7 +24,7 @@ namespace ZabbixMW.Models
     public partial class ZabbixSearcParams
     {
         [JsonProperty("search")]
-        public ZabbixSearcFilter Filter { get; set; }
+        public ZabbixSearcFilter Search { get; set; }
     }
 
     public partial class ZabbixSearcFilter

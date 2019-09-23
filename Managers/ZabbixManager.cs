@@ -26,19 +26,17 @@ namespace ZabbixMW.Managers
         private static string ZabbixUser;
         private static string ZabbixPassword;
         private static string ZabbixRPCVersion;
+        private static string ZabbixAPIUrl = "api/api_jsonrpc.php";
 
         public static async Task<ZabbixRpcAuthModel> GetSessionID(ZabbixRpcAuthModel zabbixRpcAuthModel)
         {
-            String url = string.Format("api/api_jsonrpc.php");
             try
             {
                 string postContent = JsonConvert.SerializeObject(zabbixRpcAuthModel, Formatting.Indented);
-                StringContent httpContent = new StringContent(postContent, Encoding.UTF8, "application/json");
-                using (HttpResponseMessage response = await ZabbixClient.PostAsJsonAsync<ZabbixRpcAuthModel>(url,zabbixRpcAuthModel).ConfigureAwait(false))
+                using (HttpResponseMessage response = await ZabbixClient.PostAsJsonAsync<ZabbixRpcAuthModel>(ZabbixAPIUrl, zabbixRpcAuthModel).ConfigureAwait(false))
                 {
                     if (response.IsSuccessStatusCode)
                     {
-                        // string authResponse = await response.Content.ReadAsStringAsync().ConfigureAwait(false);   // .ReadAsync<ZabbixRpcAuthModel>().ConfigureAwait(false);
                         ZabbixRpcAuthResponceModel zabbixRpcAuthResponceModel = await response.Content.ReadAsAsync<ZabbixRpcAuthResponceModel>().ConfigureAwait(false);// JsonConvert.DeserializeObject<ZabbixRpcAuthResponceModel>(authResponse);
                         ZabbixAuthResult = zabbixRpcAuthResponceModel.Result;
                         return zabbixRpcAuthModel;
@@ -56,7 +54,7 @@ namespace ZabbixMW.Managers
             }
         }
 
-        public async Task<int?> GetHostCurrentMaintenanceID(string serverName)
+        public async Task<ZabbixSearchResults> GetHostCurrentMaintenanceID(string serverName)
         {
             List<string> hostList = new List<string>();
             hostList.Add(serverName.ToLower());
@@ -66,7 +64,7 @@ namespace ZabbixMW.Managers
             };
             ZabbixSearcParams zabbixSearcParams = new ZabbixSearcParams()
             {
-                Filter = zabbixSearcFilter
+                Search = zabbixSearcFilter
             };
             ZabbixSearchModel zabbixSearchModel = new ZabbixSearchModel
             {
@@ -76,25 +74,20 @@ namespace ZabbixMW.Managers
                 Auth = ZabbixAuthResult,
                 Id = 1
             };
-            String url = string.Format("api/api_jsonrpc.php");
             try
             {
-                string postContent = JsonConvert.SerializeObject(zabbixSearchModel, Formatting.Indented);
-                Console.WriteLine(postContent);
-                StringContent httpContent = new StringContent(postContent, Encoding.UTF8, "application/json");
-                using (HttpResponseMessage response = await ZabbixClient.PostAsJsonAsync<ZabbixSearchModel>(url, zabbixSearchModel).ConfigureAwait(false))
+                using (HttpResponseMessage response = await ZabbixClient.PostAsJsonAsync<ZabbixSearchModel>(ZabbixAPIUrl, zabbixSearchModel).ConfigureAwait(false))
                 {
                     if (response.IsSuccessStatusCode)
                     {
-                        // string authResponse = await response.Content.ReadAsStringAsync().ConfigureAwait(false);   // .ReadAsync<ZabbixRpcAuthModel>().ConfigureAwait(false);
-                        ZabbixSearchResultModel zabbixSearchResultModel = await response.Content.ReadAsAsync<ZabbixSearchResultModel>().ConfigureAwait(false);// JsonConvert.DeserializeObject<ZabbixRpcAuthResponceModel>(authResponse);
-                        string debugOutput = JsonConvert.SerializeObject(zabbixSearchResultModel, Formatting.Indented);
-                        Console.WriteLine(debugOutput);
+                        string debugResponse = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                        ZabbixSearchResultModel zabbixSearchResultModel = JsonConvert.DeserializeObject<ZabbixSearchResultModel>(debugResponse);
+                        // ZabbixSearchResultModel zabbixSearchResultModel = await response.Content.ReadAsAsync<ZabbixSearchResultModel>().ConfigureAwait(false);// JsonConvert.DeserializeObject<ZabbixRpcAuthResponceModel>(authResponse);
                         if (zabbixSearchResultModel.Result != null)
                         {
                             if (zabbixSearchResultModel.Result.Count > 0)
                             {
-                                return zabbixSearchResultModel.Result[0].Maintenanceid;
+                                return zabbixSearchResultModel.Result[0];
                             }
                             else
                             {
@@ -117,6 +110,39 @@ namespace ZabbixMW.Managers
             {
                 throw new InvalidProgramException("Failed to connect to Zabbix: " + ex.Message);
 
+            }
+        }
+
+        public async Task<bool> UpdateMaintenanceSchedule(int hostId, int correctMaintId)
+        {
+            List<string> updatingID = new List<string>();
+            updatingID.Add(hostId.ToString());
+            ZabbixSetHostMaintParams zabbixSetHostMaintParams = new ZabbixSetHostMaintParams
+            {
+                Maintenanceid = correctMaintId.ToString(),
+                Hostids = updatingID
+            };
+            ZabbixSetHostMaintModel zabbixSetHostMaintModel = new ZabbixSetHostMaintModel
+            {
+                Jsonrpc = ZabbixRPCVersion,
+                Method = "maintenance.update",
+                Params = zabbixSetHostMaintParams,
+                Auth = ZabbixAuthResult,
+                Id = 1
+            };
+            string postContent = JsonConvert.SerializeObject(zabbixSetHostMaintModel, Formatting.Indented);
+            Console.WriteLine(postContent);
+            using (HttpResponseMessage response = await ZabbixClient.PostAsJsonAsync<ZabbixSetHostMaintModel>(ZabbixAPIUrl, zabbixSetHostMaintModel).ConfigureAwait(false))
+            {
+                if (response.IsSuccessStatusCode)
+                {
+                    string debugResponse = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
         }
 
@@ -182,27 +208,40 @@ namespace ZabbixMW.Managers
                     string server = currentServer;
                     if (server == "ARMDCG2.grove.ad.uconn.edu")
                     {
-                        Task<int?> serverMainIDTask = GetHostCurrentMaintenanceID(server);
-                        serverMainIDTask.Wait();
-                        int? serverMainID = serverMainIDTask.Result;
+                        var zabbixTaskResult = GetHostCurrentMaintenanceID(server);
+                        zabbixTaskResult.Wait();
 
-                        if (serverMainID.HasValue == false)
+                        if (zabbixTaskResult.Result != null)
                         {
-                            Console.WriteLine(server + " was not found in Zabbix. Make sure the names match and the host exists in Zabbix.");
-                        }
-                        else if (serverMainID.Value != currentMaintID)
-                        {
-                            Console.WriteLine(server + " has the wrong maintenance schedule. Updating....");
-                            // Update it
-                            Console.WriteLine("Done!");
-                        }
-                        else if (serverMainID.Value == currentMaintID)
-                        {
-                            // Good, things are correct
+                            ZabbixSearchResults zabbixSearchResult = zabbixTaskResult.Result;
+
+                            long serverMainID = zabbixSearchResult.Maintenanceid;
+
+                            if (serverMainID != currentMaintID)
+                            {
+                                Console.WriteLine(server + " has the wrong maintenance schedule. Updating....");
+                                Task<bool> wasUpdateSuccess = UpdateMaintenanceSchedule(zabbixSearchResult.Hostid, currentMaintID);
+                                if (wasUpdateSuccess.Result == true)
+                                {
+                                    Console.WriteLine("Done!");
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Could not update Maintenance Window for server [" + zabbixSearchResult.Name + "]!");
+                                }
+                            }
+                            else if (serverMainID == currentMaintID)
+                            {
+                                // Good, things are correct
+                            }
+                            else
+                            {
+                                Console.WriteLine("Soemthing weird happened with server: [" + server + "]. Check AD and Zabbix.");
+                            }
                         }
                         else
                         {
-                            Console.WriteLine("Soemthing weird happened with server: [" + server + "]. Check AD and Zabbix.");
+                            Console.WriteLine(server + " was not found in Zabbix. Make sure the names match and the host exists in Zabbix.");
                         }
                     }
                 }

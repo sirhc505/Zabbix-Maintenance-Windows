@@ -35,7 +35,7 @@ namespace ZabbixMW.Managers
                             string distinguishedName = dn.ToString();
                             cn = distinguishedName.Split(',').Where(i => i.Contains("CN=")).Select(i => i.Replace("CN=", "")).FirstOrDefault();
                         }
-                        string serverName = string.Format("{0}.grove.ad.uconn.edu", cn.ToUpper());
+                        string serverName = string.Format("{0}.grove.ad.uconn.edu", cn);
                         servers.Add(serverName);
                     }
 
