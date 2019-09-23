@@ -1,7 +1,5 @@
 ﻿# Zabbix AD Maintenance Window Manager
 
-<!-- TOC -->
-
 - [Zabbix AD Maintenance Window Manager](#zabbix-ad-maintenance-window-manager)
   - [1.1. Control Logic](#11-control-logic)
   - [System Requirements](#system-requirements)
@@ -13,8 +11,6 @@
     - [1.2.3. ZabbixSettings](#123-zabbixsettings)
   - [1.3. Complete Sample JSON File](#13-complete-sample-json-file)
   - [1.4. Created By](#14-created-by)
-
-<!-- /TOC -->
 
 This application reads the Active Directory groups for managing SCCM Maintenance Windows and makes sure that they line up in Zabbix. This will minimize on Alerts.
 
