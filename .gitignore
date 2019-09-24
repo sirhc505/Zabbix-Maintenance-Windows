@@ -3,8 +3,7 @@
 ################################################################################
 
 /.vs/ZabbixMW
-/bin/Debug/netcoreapp2.2
+/bin
 /obj
 /Application.json
 /appsettings.json
-/bin/Debug/net472
