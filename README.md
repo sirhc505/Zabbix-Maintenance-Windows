@@ -1,20 +1,6 @@
 ﻿# Zabbix AD Maintenance Window Manager
 
-<!-- TOC -->
-
-- [Zabbix AD Maintenance Window Manager](#zabbix-ad-maintenance-window-manager)
-  - [Control Logic](#control-logic)
-  - [System Requirements](#system-requirements)
-    - [Running](#running)
-    - [Building](#building)
-  - [Configuration File](#configuration-file)
-    - [ADSettings](#adsettings)
-    - [MaintWinGroups](#maintwingroups)
-    - [ZabbixSettings](#zabbixsettings)
-  - [Complete Sample JSON File](#complete-sample-json-file)
-  - [Created By](#created-by)
-
-<!-- /TOC -->
+<!-- TOC -->autoauto- [Zabbix AD Maintenance Window Manager](#zabbix-ad-maintenance-window-manager)auto    - [Control Logic](#control-logic)auto    - [System Requirements](#system-requirements)auto        - [Running](#running)auto        - [Building](#building)auto    - [Configuration File](#configuration-file)auto        - [ADSettings](#adsettings)auto        - [MaintWinGroups](#maintwingroups)auto        - [ZabbixSettings](#zabbixsettings)auto    - [Complete Sample JSON File](#complete-sample-json-file)auto    - [Created By](#created-by)autoauto<!-- /TOC -->
 
 This application reads the Active Directory groups for managing SCCM Maintenance Windows and makes sure that they line up in Zabbix. This help will minimize on Alerts.
 
@@ -66,9 +52,9 @@ AD Settings contains the values to find the groups in AD.
 
 ```json
 "ADSettings": {
-    "ADOU": "OU=Maintenance_Windows,OU=Configuration_Manager,OU=Services,OU=Managed_Groups,OU=Managed_Groups,OU=UConn,DC=grove,DC=ad,DC=uconn,DC=edu",
-    "ADServer": "ldaps-grove.uits.uconn.edu",
-    "ADUser": "CN=zabbix.ad.svc,OU=Accounts,OU=Zabbix,OU=UITS,OU=Services,OU=Managed_Server,OU=Managed_Server,OU=UConn,DC=grove,DC=ad,DC=uconn,DC=edu",
+    "ADOU": "OU=Maintenance_Windows,OU=ConfigMan,OU=Services,DC=ad,DC=foo,DC=edu",
+    "ADServer": "my-domain-controller-or-vip.my.foo.edu",
+    "ADUser": "CN=zabbix.ad.svc,OU=Accounts,OU=Zabbix,OU=Services,DC=ad,DC=foo,DC=edu",
     "ADPassword": "[REPLACEME]"
   },
 ```
@@ -147,7 +133,7 @@ The section ***MaintWinGroups***  is an array that contains the CNs (Common Name
 "ZabbixSettings": {
     "Zabbix_UserName": "its.zbxtestapi.svc",
     "Zabbix_Password": "[REPLACEME]",
-    "Zabbix_ServerName": "zbx-t-web.its.uconn.edu",
+    "Zabbix_ServerName": "zbx-t-web.ad.foo.edu",
     "Zabbix_DefaultID": 13,
     "Zabbix_JSON_RPC":  "2.0"
   }
@@ -160,9 +146,9 @@ Note: The file name must be: ***appsettings.json***.
 ```json
 {
   "ADSettings": {
-    "ADOU": "OU=Maintenance_Windows,OU=Configuration_Manager,OU=Services,OU=Managed_Groups,OU=Managed_Groups,OU=UConn,DC=grove,DC=ad,DC=uconn,DC=edu",
-    "ADServer": "ldaps-grove.uits.uconn.edu",
-    "ADUser": "CN=zabbix.ad.svc,OU=Accounts,OU=Zabbix,OU=UITS,OU=Services,OU=Managed_Server,OU=Managed_Server,OU=UConn,DC=grove,DC=ad,DC=uconn,DC=edu",
+    "ADOU": "OU=Maintenance_Windows,OU=ConfigMan,OU=Services,DC=ad,DC=foo,DC=edu",
+    "ADServer": "my-domain-controller-or-vip.my.foo.edu",
+    "ADUser": "CN=zabbix.ad.svc,OU=Accounts,OU=Zabbix,OU=Services,DC=ad,DC=foo,DC=edu",
     "ADPassword": "[REPLACEME]"
   },
   "MaintWinGroups": [
@@ -218,7 +204,7 @@ Note: The file name must be: ***appsettings.json***.
   "ZabbixSettings": {
     "Zabbix_UserName": "its.zbxtestapi.svc",
     "Zabbix_Password": "[REPLACEME]",
-    "Zabbix_ServerName": "zbx-t-web.its.uconn.edu",
+    "Zabbix_ServerName": "zbx-t-web.ad.foo.edu",
     "Zabbix_DefaultID": 13,
     "Zabbix_JSON_RPC":  "2.0"
   }
